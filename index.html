@@ -373,7 +373,32 @@
 						ctx.font = "bold 14px Arial";
 						ctx.textAlign = "center";
 						ctx.textBaseline = "middle";
-						ctx.fillText(labels[i], labelX, labelY);
+
+						// Handle multi-line labels
+						const words = labels[i].split(" ");
+						const lines = [];
+						let currentLine = words[0];
+
+						for (let j = 1; j < words.length; j++) {
+							const testLine = currentLine + " " + words[j];
+							const metrics = ctx.measureText(testLine);
+							if (metrics.width > 120) {
+								lines.push(currentLine);
+								currentLine = words[j];
+							} else {
+								currentLine = testLine;
+							}
+						}
+						lines.push(currentLine);
+
+						// Draw each line with appropriate spacing
+						const lineHeight = 16;
+						const totalHeight = lines.length * lineHeight;
+						const startY = labelY - totalHeight / 2 + lineHeight / 2;
+
+						for (let j = 0; j < lines.length; j++) {
+							ctx.fillText(lines[j], labelX, startY + j * lineHeight);
+						}
 					}
 
 					// Draw outer circle
