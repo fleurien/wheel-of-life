@@ -394,6 +394,7 @@
 							}
 						}
 						if (currentLine) lines.push(currentLine);
+						lines.reverse(); // Reverse so first line is closest to circle
 
 						// Draw each line curved along the circle (from inside out)
 						const lineSpacing = 15;
