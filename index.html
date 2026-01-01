@@ -373,7 +373,8 @@
 						const labelText = labels[i].toUpperCase();
 
 						// Calculate the arc length available for this slice
-						const arcLength = (radius + labelPadding) * angleStep;
+						const textPadding = 7; // Reduced padding
+						const arcLength = (radius + textPadding) * angleStep;
 						const charWidth = 7; // Approximate character width
 						const maxChars = Math.floor(arcLength / charWidth);
 
@@ -394,12 +395,12 @@
 						}
 						if (currentLine) lines.push(currentLine);
 
-						// Draw each line curved along the circle
+						// Draw each line curved along the circle (from inside out)
 						const lineSpacing = 15;
 						for (let lineIdx = 0; lineIdx < lines.length; lineIdx++) {
 							const line = lines[lineIdx];
 							const radiusForLine =
-								radius + labelPadding + lineIdx * lineSpacing;
+								radius + textPadding + lineIdx * lineSpacing;
 
 							// Calculate angle span for this text
 							const textAngleSpan = (line.length * charWidth) / radiusForLine;
