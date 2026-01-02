@@ -362,123 +362,121 @@
 							ctx.closePath();
 							ctx.fill();
 						}
-
-						// Draw labels curved along the circle
-						ctx.fillStyle = "#333";
-						ctx.font = "bold 11px Arial";
-						ctx.textAlign = "center";
-						ctx.textBaseline = "middle";
-
-						// Convert label to uppercase
-						const labelText = labels[i].toUpperCase();
-
-						// Calculate the arc length available for this slice
-						const textPadding = 15; // Reduced padding
-						const arcLength = (radius + textPadding) * angleStep;
-						const charWidth = 7; // Approximate character width
-						const slicePadding = 30; // 15px on each side
-						const availableArcLength = arcLength - slicePadding;
-						const maxChars = Math.floor(availableArcLength / charWidth);
-
-						// Wrap text to fit within the slice width
-						const words = labelText.split(" ");
-						const lines = [];
-						let currentLine = "";
-
-						for (let j = 0; j < words.length; j++) {
-							const testLine =
-								currentLine + (currentLine ? " " : "") + words[j];
-							if (testLine.length > maxChars && currentLine) {
-								lines.push(currentLine);
-								currentLine = words[j];
-							} else {
-								currentLine = testLine;
-							}
-						}
-						if (currentLine) lines.push(currentLine);
-						lines.reverse(); // Reverse so first line is closest to circle
-
-						// Draw each line curved along the circle (from inside out)
-						const lineSpacing = 15;
-						for (let lineIdx = 0; lineIdx < lines.length; lineIdx++) {
-							const line = lines[lineIdx];
-							const radiusForLine =
-								radius + textPadding + lineIdx * lineSpacing;
-
-							// Calculate angle span for this text
-							const textAngleSpan = (line.length * charWidth) / radiusForLine;
-							const textStartAngle = midAngle - textAngleSpan / 2;
-
-							ctx.save();
-
-							// Draw each character along the arc
-							for (let charIdx = 0; charIdx < line.length; charIdx++) {
-								const char = line[charIdx];
-								const charAngle =
-									textStartAngle + (charIdx * charWidth) / radiusForLine;
-
-								const charX = centerX + Math.cos(charAngle) * radiusForLine;
-								const charY = centerY + Math.sin(charAngle) * radiusForLine;
-
-								ctx.save();
-								ctx.translate(charX, charY);
-								ctx.rotate(charAngle + Math.PI / 2);
-								ctx.fillText(char, 0, 0);
-								ctx.restore();
-							}
-
-							ctx.restore();
-						}
 					}
 
-					// Draw outer circle
-					ctx.strokeStyle = "#333";
+					// Draw labels curved along the circle
+					ctx.fillStyle = "#333";
+					ctx.font = "bold 11px Arial";
+					ctx.textAlign = "center";
+					ctx.textBaseline = "middle";
+
+					// Convert label to uppercase
+					const labelText = labels[i].toUpperCase();
+
+					// Calculate the arc length available for this slice
+					const textPadding = 15; // Reduced padding
+					const arcLength = (radius + textPadding) * angleStep;
+					const charWidth = 7; // Approximate character width
+					const slicePadding = 30; // 15px on each side
+					const availableArcLength = arcLength - slicePadding;
+					const maxChars = Math.floor(availableArcLength / charWidth);
+
+					// Wrap text to fit within the slice width
+					const words = labelText.split(" ");
+					const lines = [];
+					let currentLine = "";
+
+					for (let j = 0; j < words.length; j++) {
+						const testLine = currentLine + (currentLine ? " " : "") + words[j];
+						if (testLine.length > maxChars && currentLine) {
+							lines.push(currentLine);
+							currentLine = words[j];
+						} else {
+							currentLine = testLine;
+						}
+					}
+					if (currentLine) lines.push(currentLine);
+					lines.reverse(); // Reverse so first line is closest to circle
+
+					// Draw each line curved along the circle (from inside out)
+					const lineSpacing = 15;
+					for (let lineIdx = 0; lineIdx < lines.length; lineIdx++) {
+						const line = lines[lineIdx];
+						const radiusForLine = radius + textPadding + lineIdx * lineSpacing;
+
+						// Calculate angle span for this text
+						const textAngleSpan = (line.length * charWidth) / radiusForLine;
+						const textStartAngle = midAngle - textAngleSpan / 2;
+
+						ctx.save();
+
+						// Draw each character along the arc
+						for (let charIdx = 0; charIdx < line.length; charIdx++) {
+							const char = line[charIdx];
+							const charAngle =
+								textStartAngle + (charIdx * charWidth) / radiusForLine;
+
+							const charX = centerX + Math.cos(charAngle) * radiusForLine;
+							const charY = centerY + Math.sin(charAngle) * radiusForLine;
+
+							ctx.save();
+							ctx.translate(charX, charY);
+							ctx.rotate(charAngle + Math.PI / 2);
+							ctx.fillText(char, 0, 0);
+							ctx.restore();
+						}
+
+						ctx.restore();
+					}
+				}
+
+				// Draw outer circle
+				ctx.strokeStyle = "#333";
+				ctx.lineWidth = 3;
+				ctx.beginPath();
+				ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+				ctx.stroke();
+
+				// Draw center point
+				ctx.fillStyle = "#667eea";
+				ctx.beginPath();
+				ctx.arc(centerX, centerY, 5, 0, Math.PI * 2);
+				ctx.fill();
+
+				// Draw spider web connections if that style is selected
+				if (showRatings && displayStyle === "spider") {
+					ctx.strokeStyle = "rgba(118, 75, 162, 0.8)";
+					ctx.fillStyle = "rgba(102, 126, 234, 0.3)";
 					ctx.lineWidth = 3;
+
 					ctx.beginPath();
-					ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+					for (let i = 0; i < numAreas; i++) {
+						const angle = angleStep * i - Math.PI / 2;
+						const pointRadius = (radius / ratingScale) * ratings[i];
+						const x = centerX + Math.cos(angle) * pointRadius;
+						const y = centerY + Math.sin(angle) * pointRadius;
+
+						if (i === 0) {
+							ctx.moveTo(x, y);
+						} else {
+							ctx.lineTo(x, y);
+						}
+					}
+					ctx.closePath();
+					ctx.fill();
 					ctx.stroke();
 
-					// Draw center point
-					ctx.fillStyle = "#667eea";
-					ctx.beginPath();
-					ctx.arc(centerX, centerY, 5, 0, Math.PI * 2);
-					ctx.fill();
-
-					// Draw spider web connections if that style is selected
-					if (showRatings && displayStyle === "spider") {
-						ctx.strokeStyle = "rgba(118, 75, 162, 0.8)";
-						ctx.fillStyle = "rgba(102, 126, 234, 0.3)";
-						ctx.lineWidth = 3;
+					// Draw points at each rating position
+					ctx.fillStyle = "#764ba2";
+					for (let i = 0; i < numAreas; i++) {
+						const angle = angleStep * i - Math.PI / 2;
+						const pointRadius = (radius / ratingScale) * ratings[i];
+						const x = centerX + Math.cos(angle) * pointRadius;
+						const y = centerY + Math.sin(angle) * pointRadius;
 
 						ctx.beginPath();
-						for (let i = 0; i < numAreas; i++) {
-							const angle = angleStep * i - Math.PI / 2;
-							const pointRadius = (radius / ratingScale) * ratings[i];
-							const x = centerX + Math.cos(angle) * pointRadius;
-							const y = centerY + Math.sin(angle) * pointRadius;
-
-							if (i === 0) {
-								ctx.moveTo(x, y);
-							} else {
-								ctx.lineTo(x, y);
-							}
-						}
-						ctx.closePath();
+						ctx.arc(x, y, 5, 0, Math.PI * 2);
 						ctx.fill();
-						ctx.stroke();
-
-						// Draw points at each rating position
-						ctx.fillStyle = "#764ba2";
-						for (let i = 0; i < numAreas; i++) {
-							const angle = angleStep * i - Math.PI / 2;
-							const pointRadius = (radius / ratingScale) * ratings[i];
-							const x = centerX + Math.cos(angle) * pointRadius;
-							const y = centerY + Math.sin(angle) * pointRadius;
-
-							ctx.beginPath();
-							ctx.arc(x, y, 5, 0, Math.PI * 2);
-							ctx.fill();
-						}
 					}
 				}
 			}
