@@ -362,6 +362,71 @@
 							ctx.closePath();
 							ctx.fill();
 						}
+
+						// Draw labels curved along the circle
+						ctx.fillStyle = "#333";
+						ctx.font = "bold 11px Arial";
+						ctx.textAlign = "center";
+						ctx.textBaseline = "middle";
+
+						// Convert label to uppercase
+						const labelText = labels[i].toUpperCase();
+
+						// Calculate the arc length available for this slice
+						const textPadding = 15; // Reduced padding
+						const arcLength = (radius + textPadding) * angleStep;
+						const charWidth = 7; // Approximate character width
+						const maxChars = Math.floor(arcLength / charWidth);
+
+						// Wrap text to fit within the slice width
+						const words = labelText.split(" ");
+						const lines = [];
+						let currentLine = "";
+
+						for (let j = 0; j < words.length; j++) {
+							const testLine =
+								currentLine + (currentLine ? " " : "") + words[j];
+							if (testLine.length > maxChars && currentLine) {
+								lines.push(currentLine);
+								currentLine = words[j];
+							} else {
+								currentLine = testLine;
+							}
+						}
+						if (currentLine) lines.push(currentLine);
+						lines.reverse(); // Reverse so first line is closest to circle
+
+						// Draw each line curved along the circle (from inside out)
+						const lineSpacing = 15;
+						for (let lineIdx = 0; lineIdx < lines.length; lineIdx++) {
+							const line = lines[lineIdx];
+							const radiusForLine =
+								radius + textPadding + lineIdx * lineSpacing;
+
+							// Calculate angle span for this text
+							const textAngleSpan = (line.length * charWidth) / radiusForLine;
+							const textStartAngle = midAngle - textAngleSpan / 2;
+
+							ctx.save();
+
+							// Draw each character along the arc
+							for (let charIdx = 0; charIdx < line.length; charIdx++) {
+								const char = line[charIdx];
+								const charAngle =
+									textStartAngle + (charIdx * charWidth) / radiusForLine;
+
+								const charX = centerX + Math.cos(charAngle) * radiusForLine;
+								const charY = centerY + Math.sin(charAngle) * radiusForLine;
+
+								ctx.save();
+								ctx.translate(charX, charY);
+								ctx.rotate(charAngle + Math.PI / 2);
+								ctx.fillText(char, 0, 0);
+								ctx.restore();
+							}
+
+							ctx.restore();
+						}
 					}
 
 					// Draw outer circle
@@ -413,68 +478,6 @@
 							ctx.fill();
 						}
 					}
-				}
-				// Draw labels curved along the circle
-				ctx.fillStyle = "#333";
-				ctx.font = "bold 11px Arial";
-				ctx.textAlign = "center";
-				ctx.textBaseline = "middle";
-
-				// Convert label to uppercase
-				const labelText = labels[i].toUpperCase();
-
-				// Calculate the arc length available for this slice
-				const textPadding = 15; // Reduced padding
-				const arcLength = (radius + textPadding) * angleStep;
-				const charWidth = 7; // Approximate character width
-				const maxChars = Math.floor(arcLength / charWidth);
-
-				// Wrap text to fit within the slice width
-				const words = labelText.split(" ");
-				const lines = [];
-				let currentLine = "";
-
-				for (let j = 0; j < words.length; j++) {
-					const testLine = currentLine + (currentLine ? " " : "") + words[j];
-					if (testLine.length > maxChars && currentLine) {
-						lines.push(currentLine);
-						currentLine = words[j];
-					} else {
-						currentLine = testLine;
-					}
-				}
-				if (currentLine) lines.push(currentLine);
-				lines.reverse(); // Reverse so first line is closest to circle
-
-				// Draw each line curved along the circle (from inside out)
-				const lineSpacing = 15;
-				for (let lineIdx = 0; lineIdx < lines.length; lineIdx++) {
-					const line = lines[lineIdx];
-					const radiusForLine = radius + textPadding + lineIdx * lineSpacing;
-
-					// Calculate angle span for this text
-					const textAngleSpan = (line.length * charWidth) / radiusForLine;
-					const textStartAngle = midAngle - textAngleSpan / 2;
-
-					ctx.save();
-
-					// Draw each character along the arc
-					for (let charIdx = 0; charIdx < line.length; charIdx++) {
-						const char = line[charIdx];
-						const charAngle =
-							textStartAngle + (charIdx * charWidth) / radiusForLine;
-
-						const charX = centerX + Math.cos(charAngle) * radiusForLine;
-						const charY = centerY + Math.sin(charAngle) * radiusForLine;
-
-						ctx.save();
-						ctx.translate(charX, charY);
-						ctx.rotate(charAngle + Math.PI / 2);
-						ctx.fillText(char, 0, 0);
-						ctx.restore();
-					}
-
-					ctx.restore();
 				}
 			}
 
