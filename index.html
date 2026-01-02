@@ -376,7 +376,9 @@
 						const textPadding = 15; // Reduced padding
 						const arcLength = (radius + textPadding) * angleStep;
 						const charWidth = 7; // Approximate character width
-						const maxChars = Math.floor(arcLength / charWidth);
+						const slicePadding = 30; // 15px on each side
+						const availableArcLength = arcLength - slicePadding;
+						const maxChars = Math.floor(availableArcLength / charWidth);
 
 						// Wrap text to fit within the slice width
 						const words = labelText.split(" ");
